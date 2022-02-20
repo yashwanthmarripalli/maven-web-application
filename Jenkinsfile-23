@@ -1,0 +1,50 @@
+node { 
+
+properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '10', daysToKeepStr: '', numToKeepStr: '10')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], 
+pipelineTriggers([pollSCM('* * * * *')])])
+
+
+def mavenHome = tool name: "maven3.8.4"
+
+//Get the code from GitHub
+stage('CheckoutCode') {
+ 
+             git branch: 'development', credentialsId: '72774377-3bbb-4c31-8b5c-a7841797e0fe', url: 'https://github.com/yashwanthmarripalli/maven-web-application.git'
+    
+            }
+
+//Build the code using Maven
+stage('Build') {
+
+             sh "${mavenHome}/bin/mvn clean package"
+
+            }
+
+//Generate the SonarScanner Report
+stage('ExecuteSonarQubeReport') {
+
+             sh "${mavenHome}/bin/mvn sonar:sonar"
+
+           }
+
+//Uploaded Artifacts into Nexus Repo
+stage('UploadArtifactsIntoNexusRepo') {
+
+             sh "${mavenHome}/bin/mvn deploy"
+
+           }
+
+//Deploy App into the Tomcat Server
+stage('DeployAppIntoTomcatServer') {
+
+stage('DeployAppIntoTomcatServer') {
+
+       sshagent(['46d6a20a-3b74-4c50-964b-c7cedd649c8c']) {
+                 sh "scp -o StrictHostKeyChecking=no  target/maven-web-application.war ec2-user@3.110.181.196:/opt/apache-tomcat-9.0.58/webapps/"
+                    }
+ 
+          }
+
+} 
+
+
