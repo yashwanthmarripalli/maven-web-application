@@ -37,8 +37,6 @@ stage('UploadArtifactsIntoNexusRepo') {
 //Deploy App into the Tomcat Server
 stage('DeployAppIntoTomcatServer') {
 
-stage('DeployAppIntoTomcatServer') {
-
        sshagent(['46d6a20a-3b74-4c50-964b-c7cedd649c8c']) {
                  sh "scp -o StrictHostKeyChecking=no  target/maven-web-application.war ec2-user@3.110.181.196:/opt/apache-tomcat-9.0.58/webapps/"
                     }
